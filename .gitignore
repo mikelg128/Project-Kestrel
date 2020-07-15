@@ -72,3 +72,11 @@ fabric.properties
 
 # Virtual Environment
 venv/
+
+# Savegames
+savegame.bak
+savegame.dat
+savegame.dir
+
+# Build Binaries
+*.pyc
