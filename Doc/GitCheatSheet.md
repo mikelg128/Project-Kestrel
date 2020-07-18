@@ -37,7 +37,9 @@ local version of *feature_branch*.
 ***Do this when you are done working on the features in the "feature_branch" and are ready to merge it with dev.
 Alternatively, you can accomplish this by opening a pull request on Github.***
 
-First, switch to the *dev* branch:
+First, make sure your commits on your local version of *feature_branch* are pushed to the remote.
+
+Switch to the *dev* branch:
 
     git checkout dev
     
@@ -51,4 +53,10 @@ by keeping the commit objects that come together to create the feature grouped t
 Finally, you can push the updated *dev* branch to the remote:
 
     git push origin dev
+    
+If you are done with *feature_branch* and want to delete it, you can do so locally and remotely with the following
+commands:
+
+    git branch -d feature_branch
+    git push origin --delete feature_branch
     
