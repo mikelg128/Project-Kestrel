@@ -277,7 +277,7 @@ def main():
     show_main_menu = True
     show_load_error_message = False
 
-    main_menu_background_image = libtcod.image_load('menu_background.png')  # TODO get menu background working
+    main_menu_background_image = libtcod.image_load('Assets/menu_background.png')  # Define image object
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
@@ -286,6 +286,7 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
         if show_main_menu:
+            # Create main menu; pass image object and set height and width to that of the screen.
             main_menu(con, main_menu_background_image, constants['screen_width'], constants['screen_height'])
 
             if show_load_error_message:
