@@ -1,5 +1,5 @@
 
-import tcod as libtcod
+import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
 
 from components.fighter import Fighter
 from components.inventory import Inventory

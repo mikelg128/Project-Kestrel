@@ -1,5 +1,5 @@
 
-import tcod as libtcod
+import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
 
 
 def menu(con, header, options, width, screen_width, screen_height):
@@ -46,17 +46,21 @@ def inventory_menu(con, header, player, inventory_width, screen_width, screen_he
             else:
                 options.append(item.name)
 
-    menu(con, header, options, inventory_width, screen_width, screen_height)
+    # menu(con, header, options, inventory_width, screen_width, screen_height)
 
 
 def main_menu(con, background_image, screen_width, screen_height):
-    libtcod.image_blit_2x(background_image, 0, 0, 0)
+    # libtcod.image_blit_2x(background_image, 0, 0, 0)  # Do something about image drawing later.
+    con.print(int(screen_width / 2), int(screen_height / 2) - 6, '[Rogue Like]', libtcod.light_yellow,
+              alignment=libtcod.CENTER)
+    con.print(int(screen_width / 2), int(screen_height / 2) - 5, 'by Michael Greer & Samar Mathur',
+              libtcod.light_yellow, alignment=libtcod.CENTER)
 
-    libtcod.console_set_default_foreground(0, libtcod.light_yellow)
-    libtcod.console_print_ex(0, int(screen_width / 2), int(screen_height / 2) - 6, libtcod.BKGND_NONE, libtcod.CENTER,
-                             'TOMBS OF THE ANCIENT KINGS')
-    libtcod.console_print_ex(0, int(screen_width / 2), int(screen_height / 2) - 5, libtcod.BKGND_NONE, libtcod.CENTER,
-                             'by Michael Greer')
+    # libtcod.console_set_default_foreground(0, libtcod.light_yellow)
+    # libtcod.console_print_ex(0, int(screen_width / 2), int(screen_height / 2) - 6, libtcod.BKGND_NONE, libtcod.CENTER,
+    #                         'TOMBS OF THE ANCIENT KINGS')
+    # libtcod.console_print_ex(0, int(screen_width / 2), int(screen_height / 2) - 5, libtcod.BKGND_NONE, libtcod.CENTER,
+    #                         'by Michael Greer')
 
     menu(con, '', ['Play a new game', 'Continue last game', 'Quit'], 24, screen_width, screen_height)
 

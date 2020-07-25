@@ -1,5 +1,5 @@
 
-import tcod as libtcod
+import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
 from random import randint
 from game_messages import Message
 

@@ -1,4 +1,4 @@
-import tcod as libtcod
+import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
 from game_states import GameStates
 
 
@@ -121,16 +121,26 @@ def handle_inventory_keys(key):
 
 
 def handle_main_menu(key):
-    key_char = chr(key.c)
-
-    if key_char == 'a':
+    if key == libtcod.event.K_a:
         return {'new_game': True}
-    elif key_char == 'b':
+    elif key == libtcod.event.K_b:
         return {'load_game': True}
-    elif key_char == 'c' or key.vk == libtcod.KEY_ESCAPE:
+    elif key == libtcod.event.K_c or key == libtcod.event.K_ESCAPE:
         return {'exit': True}
 
     return {}
+    # key_char = chr(key.c)
+
+    # if key_char == 'a':
+    #     return {'new_game': True}
+    # elif key_char == 'b':
+    #     return {'load_game': True}
+    # elif key_char == 'c' or key.vk == libtcod.KEY_ESCAPE:
+    #     return {'exit': True}
+    #
+    # return {}
+
+
 
 
 def handle_level_up_menu(key):

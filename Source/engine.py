@@ -1,4 +1,4 @@
-import tcod as libtcod
+import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
 from entity import get_blocking_entities_at_location
 from fov_functions import initialize_fov, recompute_fov
 from game_states import GameStates
@@ -23,6 +23,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
     targeting_item = None
 
+    # Game Loop:
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
@@ -35,10 +36,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                    constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
         fov_recompute = False
 
+        # Console update:
         libtcod.console_flush()
 
         clear_all(con, entities)
 
+        # Input Handlers:
         action = handle_keys(key, game_state)
         mouse_action = handle_mouse(mouse)
 
@@ -59,6 +62,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         player_turn_results = []
 
+        # Logic:
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
             destination_x = player.x + dx
@@ -259,14 +263,17 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 game_state = GameStates.PLAYERS_TURN
 
 
-def main():
+def main() -> None:
     constants = get_constants()
 
-    libtcod.console_set_custom_font('assets/arial10x10.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
-    libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
+    # libtcod.console_set_custom_font('assets/arial10x10.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
+    # libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
 
-    con = libtcod.console_new(constants['screen_width'], constants['screen_height'])
-    panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
+    # Load font as a tileset:
+    tileset = libtcod.tileset.load_tilesheet('assets/arial10x10.png', 32, 8, libtcod.tileset.CHARMAP_TCOD)
+
+    # con = libtcod.console_new(constants['screen_width'], constants['screen_height'])
+    # panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
 
     player = None
     entities = []
@@ -277,51 +284,79 @@ def main():
     show_main_menu = True
     show_load_error_message = False
 
-    main_menu_background_image = libtcod.image_load('Assets/menu_background.png')  # Define image object
+    action = {}
 
-    key = libtcod.Key()
-    mouse = libtcod.Mouse()
+    # main_menu_background_image = libtcod.image_load('Assets/menu_background.png')  # Define image object
+    main_menu_background_image = libtcod.image.load('Assets/menu_background.png')
 
-    while not libtcod.console_is_window_closed():
-        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+    # key = libtcod.Key()
+    # mouse = libtcod.Mouse()
 
-        if show_main_menu:
-            # Create main menu; pass image object and set height and width to that of the screen.
-            main_menu(con, main_menu_background_image, constants['screen_width'], constants['screen_height'])
+    # Create a new terminal:
+    with libtcod.context.new_terminal(
+            constants['screen_width'],
+            constants['screen_height'],
+            tileset=tileset,
+            title='RogueLike',
+            vsync=True
+    ) as context:
+        # Create the root console:
+        root_console = libtcod.Console(constants['screen_width'], constants['screen_height'], order='F')
+        # Create console for panel:
+        panel = libtcod.Console(constants['screen_width'], constants['panel_height'], order='F')
+        # while not libtcod.console_is_window_closed():
+        while True:  # <- I don't love that
+            # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
 
-            if show_load_error_message:
-                message_box(con, 'No save game to load', 65, constants['screen_width'], constants['screen_height'])
+            if show_main_menu:
+                # Create main menu; pass image object and set height and width to that of the screen.
+                main_menu(root_console, main_menu_background_image, constants['screen_width'], constants['screen_height'])
 
-            libtcod.console_flush()
+                if show_load_error_message:
+                    message_box(root_console, 'No save game to load', 65, constants['screen_width'],
+                                constants['screen_height'])
 
-            action = handle_main_menu(key)
+                # libtcod.console_flush()
+                # Update the terminal with the contents of the root console:
+                context.present(root_console)
+                # Clear the root console:
+                root_console.clear()
 
-            new_game = action.get('new_game')
-            load_saved_game = action.get('load_game')
-            exit_game = action.get('exit')
+                # Input Handlers:
+                for event in libtcod.event.wait():
+                    if event.type == "KEYDOWN":
+                        key = event.sym
+                        action = handle_main_menu(key)
 
-            if show_load_error_message and (new_game or load_saved_game or exit_game):
-                show_load_error_message = False
+                # action = handle_main_menu(key)  # Need to rewrite input_handlers.py
 
-            elif new_game:
-                player, entities, game_map, message_log, game_state = get_game_variables(constants)
-                game_state = GameStates.PLAYERS_TURN
+                new_game = action.get('new_game')
+                load_saved_game = action.get('load_game')
+                exit_game = action.get('exit')
 
-                show_main_menu = False
-            elif load_saved_game:
-                try:
-                    player, entities, game_map, message_log, game_state = load_game()
+                # Logic:
+                if show_load_error_message and (new_game or load_saved_game or exit_game):
+                    show_load_error_message = False
+
+                elif new_game:
+                    player, entities, game_map, message_log, game_state = get_game_variables(constants)
+                    game_state = GameStates.PLAYERS_TURN
+
                     show_main_menu = False
-                except FileNotFoundError:
-                    show_load_error_message = True
-            elif exit_game:
-                break
+                elif load_saved_game:
+                    try:
+                        player, entities, game_map, message_log, game_state = load_game()
+                        show_main_menu = False
+                    except FileNotFoundError:
+                        show_load_error_message = True
+                elif exit_game:
+                    break
 
-        else:
-            libtcod.console_clear(con)
-            play_game(player, entities, game_map, message_log, game_state, con, panel, constants)
+            else:
+                libtcod.console_clear(root_console)
+                play_game(player, entities, game_map, message_log, game_state, root_console, panel, constants)
 
-            show_main_menu = True
+                show_main_menu = True
 
 
 if __name__ == '__main__':

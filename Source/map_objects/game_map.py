@@ -1,5 +1,5 @@
 
-import tcod as libtcod
+import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
 from entity import Entity
 from item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from game_messages import Message
