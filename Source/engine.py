@@ -11,21 +11,42 @@ from game_messages import Message
 from menus import main_menu, message_box
 
 
-def play_game(player, entities, game_map, message_log, game_state, con, panel, constants):
+def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, context):
     fov_recompute = True
     fov_map = initialize_fov(game_map)
 
-    key = libtcod.Key()
-    mouse = libtcod.Mouse()
+    # key = libtcod.Key()
+    # mouse = libtcod.Mouse()
+    key = None
+    mouse = libtcod.event.MouseButtonEvent()
 
     game_state = GameStates.PLAYERS_TURN
     previous_game_state = game_state
 
     targeting_item = None
 
+    action = {}
+
+    loop_count = 0
+
+    # Render and present the initial game state:
+    recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
+                  constants['fov_algorithm'])
+    render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
+               constants['screen_width'], constants['screen_height'], constants['bar_width'],
+               constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
+    context.present(con)
+    con.clear()
+
     # Game Loop:
-    while not libtcod.console_is_window_closed():
-        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+    while True:  # <- Don't love this
+        loop_count += 1
+        # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+        for event in libtcod.event.wait():
+            if event.type == "KEYDOWN":
+                key = event.sym
+            elif event.type == "MOUSEBUTTONDOWN":
+                mouse = event
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
@@ -34,16 +55,21 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                    constants['screen_width'], constants['screen_height'], constants['bar_width'],
                    constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
-        fov_recompute = False
+        # fov_recompute = False
 
         # Console update:
-        libtcod.console_flush()
+        # libtcod.console_flush()
+        context.present(con)
+        con.clear()
 
-        clear_all(con, entities)
+        # clear_all(con, entities)  # Is this effectively replaced by con.clear()?
 
         # Input Handlers:
+
         action = handle_keys(key, game_state)
         mouse_action = handle_mouse(mouse)
+        key = None
+        mouse = libtcod.event.MouseButtonEvent()
 
         move = action.get('move')
         wait = action.get('wait')
@@ -75,6 +101,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     player_turn_results.extend(attack_results)
                 else:
                     player.move(dx, dy)
+                    # dx, dy = 0, 0
                     fov_recompute = True
 
                 game_state = GameStates.ENEMY_TURN
@@ -92,6 +119,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
             else:
                 message_log.add_message(Message('There is nothing here to pick up.', libtcod.yellow))
+
         if show_inventory:
             previous_game_state = game_state
             game_state = GameStates.SHOW_INVENTORY
@@ -291,6 +319,10 @@ def main() -> None:
 
     # key = libtcod.Key()
     # mouse = libtcod.Mouse()
+    key = None
+    mouse = libtcod.event.MouseButtonEvent()
+
+    main_loop_count = 0
 
     # Create a new terminal:
     with libtcod.context.new_terminal(
@@ -305,12 +337,19 @@ def main() -> None:
         # Create console for panel:
         panel = libtcod.Console(constants['screen_width'], constants['panel_height'], order='F')
         # while not libtcod.console_is_window_closed():
-        while True:  # <- I don't love that
+        while True:  # <- I don't love
+            main_loop_count += 1
             # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+            for event in libtcod.event.wait():
+                if event.type == "KEYDOWN":
+                    key = event.sym
+                elif event.type == "MOUSEBUTTONDOWN":
+                    mouse = event
 
             if show_main_menu:
                 # Create main menu; pass image object and set height and width to that of the screen.
-                main_menu(root_console, main_menu_background_image, constants['screen_width'], constants['screen_height'])
+                main_menu(root_console, main_menu_background_image, constants['screen_width'],
+                          constants['screen_height'])
 
                 if show_load_error_message:
                     message_box(root_console, 'No save game to load', 65, constants['screen_width'],
@@ -323,13 +362,9 @@ def main() -> None:
                 root_console.clear()
 
                 # Input Handlers:
-                for event in libtcod.event.wait():
-                    if event.type == "KEYDOWN":
-                        key = event.sym
-                        action = handle_main_menu(key)
 
-                # action = handle_main_menu(key)  # Need to rewrite input_handlers.py
-
+                action = handle_main_menu(key)  # Need to rewrite input_handlers.py
+                key = None
                 new_game = action.get('new_game')
                 load_saved_game = action.get('load_game')
                 exit_game = action.get('exit')
@@ -353,8 +388,8 @@ def main() -> None:
                     break
 
             else:
-                libtcod.console_clear(root_console)
-                play_game(player, entities, game_map, message_log, game_state, root_console, panel, constants)
+                root_console.clear()
+                play_game(player, entities, game_map, message_log, game_state, root_console, panel, constants, context)
 
                 show_main_menu = True
 

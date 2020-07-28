@@ -12,8 +12,8 @@ class RenderOrder(Enum):
 
 
 def get_names_under_mouse(mouse, entities, fov_map):
-    (x, y) = (mouse.cx, mouse.cy)
-
+    # (x, y) = mouse.tile
+    x, y = libtcod.event.get_mouse_state().tile
     names = [entity.name for entity in entities
              if entity.x == x and entity.y == y and libtcod.map_is_in_fov(fov_map, entity.x, entity.y)]
     names = ', '.join(names)
@@ -24,16 +24,20 @@ def get_names_under_mouse(mouse, entities, fov_map):
 def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_color):
     bar_width = int(float(value) / maximum * total_width)
 
-    libtcod.console_set_default_background(panel, back_color)
-    libtcod.console_rect(panel, x, y, total_width, 1, False, libtcod.BKGND_SCREEN)
+    # libtcod.console_set_default_background(panel, back_color)
+    # libtcod.console_rect(panel, x, y, total_width, 1, False, libtcod.BKGND_SCREEN)
+    panel.draw_rect(x, y, total_width, 1, 0, bg=back_color, bg_blend=libtcod.BKGND_SCREEN)
 
-    libtcod.console_set_default_background(panel, bar_color)
+    # libtcod.console_set_default_background(panel, bar_color)
     if bar_width > 0:
-        libtcod.console_rect(panel, x, y, bar_width, 1, False, libtcod.BKGND_SCREEN)
+        # libtcod.console_rect(panel, x, y, bar_width, 1, False, libtcod.BKGND_SCREEN)
+        panel.draw_rect(x, y, bar_width, 1, 0, bg=bar_color, bg_blend=libtcod.BKGND_SCREEN)
 
-    libtcod.console_set_default_foreground(panel, libtcod.white)
-    libtcod.console_print_ex(panel, int(x + total_width / 2), y, libtcod.BKGND_NONE, libtcod.CENTER,
-                             '{0}: {1}/{2}'.format(name, value, maximum))
+    # libtcod.console_set_default_foreground(panel, libtcod.white)
+    # libtcod.console_print_ex(panel, int(x + total_width / 2), y, libtcod.BKGND_NONE, libtcod.CENTER,
+    #                          '{0}: {1}/{2}'.format(name, value, maximum))
+    panel.print(int(x + total_width / 2), y, '{0}: {1}/{2}'.format(name, value, maximum), libtcod.white,
+                alignment=libtcod.CENTER)
 
 
 def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height,
@@ -42,7 +46,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     if fov_recompute:
         for y in range(game_map.height):
             for x in range(game_map.width):
-                visible = libtcod.map_is_in_fov(fov_map, x, y)
+                visible = libtcod.map_is_in_fov(fov_map, x, y)  # Need to update yet?
                 wall = game_map.tiles[x][y].block_sight
 
                 if visible:
@@ -63,28 +67,39 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     for entity in entities_in_render_order:
         draw_entity(con, entity, fov_map, game_map)
 
-    libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
+    # con.blit(0, 0, screen_width, screen_height, 0, 0, 0)
 
-    libtcod.console_set_default_background(panel, libtcod.black)
-    libtcod.console_clear(panel)
+    # Set panel to black and clear it
+    # libtcod.console_set_default_background(panel, libtcod.black)
+    # libtcod.console_clear(panel)
+    panel.default_bg = libtcod.black
+    panel.clear()
 
     # Print the game messages, one line at a time
     y = 1
     for message in message_log.messages:
-        libtcod.console_set_default_foreground(panel, message.color)
-        libtcod.console_print_ex(panel, message_log.x, y, libtcod.BKGND_NONE, libtcod.LEFT, message.text)
+        # libtcod.console_set_default_foreground(panel, message.color)
+        # libtcod.console_print_ex(panel, message_log.x, y, libtcod.BKGND_NONE, libtcod.LEFT, message.text)
+        panel.print(message_log.x, y, message.text, message.color, alignment=libtcod.LEFT)
         y += 1
 
-    render_bar(panel, 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp,
-               libtcod.light_red, libtcod.darker_red)
-    libtcod.console_print_ex(panel, 1, 3, libtcod.BKGND_NONE,
-                             libtcod.LEFT, 'Dungeon level: {0}'.format(game_map.dungeon_level))
+    # Render health bar:
+    render_bar(panel, 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp, libtcod.light_red,
+               libtcod.darker_red)
+    # Print dungeon level:
+    # libtcod.console_print_ex(panel, 1, 3, libtcod.BKGND_NONE,
+    #                          libtcod.LEFT, 'Dungeon level: {0}'.format(game_map.dungeon_level))
+    panel.print(1, 3, 'Dungeon level: {0}'.format(game_map.dungeon_level), libtcod.white, alignment=libtcod.LEFT)
 
-    libtcod.console_set_default_foreground(panel, libtcod.light_gray)
-    libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(mouse, entities,
-                                                                                                  fov_map))
+    # Print names under mouse:
+    # libtcod.console_set_default_foreground(panel, libtcod.light_gray)
+    # libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_under_mouse(mouse, entities,
+    #                                                                                              fov_map))
+    panel.print(1, 0, get_names_under_mouse(mouse, entities, fov_map), libtcod.light_gray, alignment=libtcod.LEFT)
 
-    libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
+    # Blit panel to root console:
+    # libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
+    panel.blit(con, 0, panel_y, 0, 0, screen_width, panel_height)
 
     if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         if game_state == GameStates.SHOW_INVENTORY:
@@ -97,7 +112,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
         level_up_menu(con, 'Level up! Choose a stat to raise:', player, 40, screen_width, screen_height)
 
     elif game_state == GameStates.CHARACTER_SCREEN:
-        character_screen(player, 30, 10, screen_width, screen_height)
+        character_screen(con, player, 30, 10, screen_width, screen_height)
 
 
 def clear_all(con, entities):
@@ -108,8 +123,9 @@ def clear_all(con, entities):
 def draw_entity(con, entity, fov_map, game_map):
     if libtcod.map_is_in_fov(fov_map, entity.x, entity.y) \
             or (entity.stairs and game_map.tiles[entity.x][entity.y].explored):
-        libtcod.console_set_default_foreground(con, entity.color)
-        libtcod.console_put_char(con, entity.x, entity.y, entity.char, libtcod.BKGND_NONE)
+        # libtcod.console_set_default_foreground(con, entity.color)
+        # libtcod.console_put_char(con, entity.x, entity.y, entity.char, libtcod.BKGND_NONE)
+        con.print(entity.x, entity.y, entity.char, entity.color)
 
 
 def clear_entity(con, entity):
