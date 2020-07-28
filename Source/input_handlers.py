@@ -22,21 +22,21 @@ def handle_keys(key, game_state):
 def handle_player_turn_keys(key):  # TODO solve some key conflicts
     # Movement keys
     # key_char = chr(key.c)
-    if key == (libtcod.event.K_UP or libtcod.event.K_k or libtcod.event.K_w):
+    if key in (libtcod.event.K_UP, libtcod.event.K_k, libtcod.event.K_w):
         return {'move': (0, -1)}
-    elif key == (libtcod.event.K_DOWN or libtcod.event.K_j or libtcod.event.K_s):
+    elif key in (libtcod.event.K_DOWN, libtcod.event.K_j, libtcod.event.K_s):
         return {'move': (0, 1)}
-    elif key == (libtcod.event.K_LEFT or libtcod.event.K_h or libtcod.event.K_a):
+    elif key in (libtcod.event.K_LEFT, libtcod.event.K_h, libtcod.event.K_a):
         return {'move': (-1, 0)}
-    elif key == (libtcod.event.K_RIGHT or libtcod.event.K_l or libtcod.event.K_d):
+    elif key in (libtcod.event.K_RIGHT, libtcod.event.K_l, libtcod.event.K_d):
         return {'move': (1, 0)}
-    elif key == (libtcod.event.K_y or libtcod.event.K_q):
+    elif key in (libtcod.event.K_y, libtcod.event.K_q):
         return {'move': (-1, -1)}
-    elif key == (libtcod.event.K_u or libtcod.event.K_e):
+    elif key in (libtcod.event.K_u, libtcod.event.K_e):
         return {'move': (1, -1)}
-    elif key == (libtcod.event.K_b or libtcod.event.K_z):
+    elif key in (libtcod.event.K_b, libtcod.event.K_z):
         return {'move': (-1, 1)}
-    elif key == (libtcod.event.K_n or libtcod.event.K_c):
+    elif key in (libtcod.event.K_n, libtcod.event.K_c):
         return {'move': (1, 1)}
     elif key == libtcod.event.K_b:
         return {'wait': True}

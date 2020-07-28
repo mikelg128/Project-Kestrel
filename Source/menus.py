@@ -83,25 +83,20 @@ def character_screen(con, player, character_screen_width, character_screen_heigh
     # libtcod.console_set_default_foreground(window, libtcod.white)
 
     window.print_box(0, 1, character_screen_width, character_screen_height, 'Character Information', libtcod.white,
-                     libtcod.BKGND_NONE, alignment=libtcod.LEFT)
+                     alignment=libtcod.LEFT)
     window.print_box(0, 2, character_screen_width, character_screen_height,
-                     'Level: {0}'.format(player.level.current_level), libtcod.white, libtcod.BKGND_NONE,
-                     alignment=libtcod.LEFT)
+                     'Level: {0}'.format(player.level.current_level), libtcod.white, alignment=libtcod.LEFT)
     window.print_box(0, 3, character_screen_width, character_screen_height,
-                     'Experience: {0}'.format(player.level.current_xp), libtcod.white, libtcod.BKGND_NONE,
-                     alignment=libtcod.LEFT)
+                     'Experience: {0}'.format(player.level.current_xp), libtcod.white, alignment=libtcod.LEFT)
     window.print_box(0, 4, character_screen_width, character_screen_height,
                      'Experience to Level: {0}'.format(player.level.experience_to_next_level), libtcod.white,
-                     libtcod.BKGND_NONE, alignment=libtcod.LEFT)
+                     alignment=libtcod.LEFT)
     window.print_box(0, 6, character_screen_width, character_screen_height,
-                     'Maximum HP: {0}'.format(player.fighter.max_hp), libtcod.white, libtcod.BKGND_NONE,
-                     alignment=libtcod.LEFT)
+                     'Maximum HP: {0}'.format(player.fighter.max_hp), libtcod.white, alignment=libtcod.LEFT)
     window.print_box(0, 7, character_screen_width, character_screen_height,
-                     'Attack: {0}'.format(player.fighter.power), libtcod.white, libtcod.BKGND_NONE,
-                     alignment=libtcod.LEFT)
+                     'Attack: {0}'.format(player.fighter.power), libtcod.white, alignment=libtcod.LEFT)
     window.print_box(0, 8, character_screen_width, character_screen_height,
-                     'Defense: {0}'.format(player.fighter.defense), libtcod.white, libtcod.BKGND_NONE,
-                     alignment=libtcod.LEFT)
+                     'Defense: {0}'.format(player.fighter.defense), libtcod.white, alignment=libtcod.LEFT)
 
     x = screen_width // 2 - character_screen_width // 2
     y = screen_height // 2 - character_screen_height // 2
