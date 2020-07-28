@@ -20,7 +20,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     key = None
     mouse = libtcod.event.MouseButtonEvent()
 
-    game_state = GameStates.PLAYERS_TURN
+    # game_state = GameStates.PLAYERS_TURN  # This is causing the corpse bug
     previous_game_state = game_state
 
     targeting_item = None
