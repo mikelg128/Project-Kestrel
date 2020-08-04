@@ -43,9 +43,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         loop_count += 1
         # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
         for event in libtcod.event.wait():
+            context.convert_event(event)
             if event.type == "KEYDOWN":
                 key = event.sym
             elif event.type == "MOUSEBUTTONDOWN":
+                mouse = event
+            elif event.type == "MOUSEMOTION":
                 mouse = event
 
         if fov_recompute:
@@ -101,7 +104,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     player_turn_results.extend(attack_results)
                 else:
                     player.move(dx, dy)
-                    # dx, dy = 0, 0
                     fov_recompute = True
 
                 game_state = GameStates.ENEMY_TURN
@@ -294,14 +296,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 def main() -> None:
     constants = get_constants()
 
-    # libtcod.console_set_custom_font('assets/arial10x10.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
-    # libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
-
     # Load font as a tileset:
     tileset = libtcod.tileset.load_tilesheet('assets/arial10x10.png', 32, 8, libtcod.tileset.CHARMAP_TCOD)
-
-    # con = libtcod.console_new(constants['screen_width'], constants['screen_height'])
-    # panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
 
     player = None
     entities = []
@@ -315,10 +311,8 @@ def main() -> None:
     action = {}
 
     # main_menu_background_image = libtcod.image_load('Assets/menu_background.png')  # Define image object
-    main_menu_background_image = libtcod.image.load('Assets/menu_background.png')
+    main_menu_background_image = libtcod.image.load('Assets/menu_background.png')  # Does not currently work
 
-    # key = libtcod.Key()
-    # mouse = libtcod.Mouse()
     key = None
     mouse = libtcod.event.MouseButtonEvent()
 
@@ -338,13 +332,14 @@ def main() -> None:
         panel = libtcod.Console(constants['screen_width'], constants['panel_height'], order='F')
         # while not libtcod.console_is_window_closed():
         while True:  # <- I don't love
-            main_loop_count += 1
+            main_loop_count += 1  # For debugging
             # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
             for event in libtcod.event.wait():
                 if event.type == "KEYDOWN":
                     key = event.sym
-                elif event.type == "MOUSEBUTTONDOWN":
-                    mouse = event
+                # elif event.type == "MOUSEBUTTONDOWN":
+                #     mouse = event
+                mouse = event
 
             if show_main_menu:
                 # Create main menu; pass image object and set height and width to that of the screen.

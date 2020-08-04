@@ -94,11 +94,11 @@ def handle_player_dead_keys(key):
 
 def handle_mouse(mouse):
     (x, y) = mouse.tile
-
-    if mouse.button == libtcod.event.BUTTON_LEFT:
-        return {'left_click': (x, y)}
-    elif mouse.button == libtcod.event.BUTTON_RIGHT:
-        return {'right_click': (x, y)}
+    if mouse.type == "MOUSEBUTTONDOWN":
+        if mouse.button == libtcod.event.BUTTON_LEFT:
+            return {'left_click': (x, y)}
+        elif mouse.button == libtcod.event.BUTTON_RIGHT:
+            return {'right_click': (x, y)}
 
     return {}
 
