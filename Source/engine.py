@@ -1,4 +1,4 @@
-import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
+import tcod
 from entity import get_blocking_entities_at_location
 from fov_functions import initialize_fov, recompute_fov
 from game_states import GameStates
@@ -15,11 +15,10 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
     fov_recompute = True
     fov_map = initialize_fov(game_map)
 
-    # key = libtcod.Key()
-    # mouse = libtcod.Mouse()
     key = None
-    mouse = libtcod.event.MouseButtonEvent()
-
+    key_event = tcod.event.KeyboardEvent(0, 0, 0)
+    mouse = tcod.event.MouseButtonEvent()
+    current_mouse_tile = 0, 0
     # game_state = GameStates.PLAYERS_TURN  # This is causing the corpse bug
     previous_game_state = game_state
 
@@ -34,22 +33,24 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                   constants['fov_algorithm'])
     render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                constants['screen_width'], constants['screen_height'], constants['bar_width'],
-               constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
+               constants['panel_height'], constants['panel_y'], current_mouse_tile, constants['colors'], game_state)
     context.present(con)
     con.clear()
 
     # Game Loop:
     while True:  # <- Don't love this
         loop_count += 1
-        # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
-        for event in libtcod.event.wait():
+
+        for event in tcod.event.get():
             context.convert_event(event)
             if event.type == "KEYDOWN":
                 key = event.sym
+                key_event = event
             elif event.type == "MOUSEBUTTONDOWN":
                 mouse = event
             elif event.type == "MOUSEMOTION":
                 mouse = event
+                current_mouse_tile = event.tile
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
@@ -57,11 +58,10 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log,
                    constants['screen_width'], constants['screen_height'], constants['bar_width'],
-                   constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
+                   constants['panel_height'], constants['panel_y'], current_mouse_tile, constants['colors'], game_state)
         # fov_recompute = False
 
         # Console update:
-        # libtcod.console_flush()
         context.present(con)
         con.clear()
 
@@ -69,11 +69,13 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         # Input Handlers:
 
-        action = handle_keys(key, game_state)
+        action = handle_keys(key_event, game_state)
         mouse_action = handle_mouse(mouse)
+        # The following lines clear the current events. Need a more elegant solution.
+        key_event = tcod.event.KeyboardEvent(0, 0, 0)
         key = None
-        mouse = libtcod.event.MouseButtonEvent()
-
+        mouse = tcod.event.MouseButtonEvent()
+        # Input results:
         move = action.get('move')
         wait = action.get('wait')
         pickup = action.get('pickup')
@@ -120,7 +122,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     break
 
             else:
-                message_log.add_message(Message('There is nothing here to pick up.', libtcod.yellow))
+                message_log.add_message(Message('There is nothing here to pick up.', tcod.yellow))
 
         if show_inventory:
             previous_game_state = game_state
@@ -145,11 +147,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     entities = game_map.next_floor(player, message_log, constants)
                     fov_map = initialize_fov(game_map)
                     fov_recompute = True
-                    libtcod.console_clear(con)
+                    tcod.console_clear(con)
 
                     break
             else:
-                message_log.add_message(Message('There are no stairs here.', libtcod.yellow))
+                message_log.add_message(Message('There are no stairs here.', tcod.yellow))
 
         if level_up:
             if level_up == 'hp':
@@ -186,8 +188,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
                 return True
 
-        if fullscreen:
-            libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+        if fullscreen:  # TODO: This does not work with contexts. Need to find a new way to toggle fullscreen.
+            tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
 
         for player_turn_result in player_turn_results:
             message = player_turn_result.get('message')
@@ -215,7 +217,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 if leveled_up:
                     message_log.add_message(Message(
                         'Your battle skills grow stronger! You reached level {0}'.format(
-                            player.level.current_level) + '!', libtcod.yellow))
+                            player.level.current_level) + '!', tcod.yellow))
                     previous_game_state = game_state
                     game_state = GameStates.LEVEL_UP
 
@@ -297,7 +299,7 @@ def main() -> None:
     constants = get_constants()
 
     # Load font as a tileset:
-    tileset = libtcod.tileset.load_tilesheet('assets/arial10x10.png', 32, 8, libtcod.tileset.CHARMAP_TCOD)
+    tileset = tcod.tileset.load_tilesheet('assets/arial10x10.png', 32, 8, tcod.tileset.CHARMAP_TCOD)
 
     player = None
     entities = []
@@ -310,16 +312,17 @@ def main() -> None:
 
     action = {}
 
-    # main_menu_background_image = libtcod.image_load('Assets/menu_background.png')  # Define image object
-    main_menu_background_image = libtcod.image.load('Assets/menu_background.png')  # Does not currently work
+    # main_menu_background_image = tcod.image_load('Assets/menu_background.png')  # Define image object
+    main_menu_background_image = tcod.image.load('Assets/menu_background.png')  # Does not currently work
 
     key = None
-    mouse = libtcod.event.MouseButtonEvent()
+    key_event = tcod.event.KeyboardEvent(0, 0, 0)
+    mouse = tcod.event.MouseButtonEvent()
 
     main_loop_count = 0
 
     # Create a new terminal:
-    with libtcod.context.new_terminal(
+    with tcod.context.new_terminal(
             constants['screen_width'],
             constants['screen_height'],
             tileset=tileset,
@@ -327,16 +330,16 @@ def main() -> None:
             vsync=True
     ) as context:
         # Create the root console:
-        root_console = libtcod.Console(constants['screen_width'], constants['screen_height'], order='F')
+        root_console = tcod.Console(constants['screen_width'], constants['screen_height'], order='F')
         # Create console for panel:
-        panel = libtcod.Console(constants['screen_width'], constants['panel_height'], order='F')
-        # while not libtcod.console_is_window_closed():
+        panel = tcod.Console(constants['screen_width'], constants['panel_height'], order='F')
+
         while True:  # <- I don't love
             main_loop_count += 1  # For debugging
-            # libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
-            for event in libtcod.event.wait():
+            for event in tcod.event.wait():
                 if event.type == "KEYDOWN":
                     key = event.sym
+                    key_event = event
                 # elif event.type == "MOUSEBUTTONDOWN":
                 #     mouse = event
                 mouse = event
@@ -350,7 +353,6 @@ def main() -> None:
                     message_box(root_console, 'No save game to load', 65, constants['screen_width'],
                                 constants['screen_height'])
 
-                # libtcod.console_flush()
                 # Update the terminal with the contents of the root console:
                 context.present(root_console)
                 # Clear the root console:
@@ -358,8 +360,12 @@ def main() -> None:
 
                 # Input Handlers:
 
-                action = handle_main_menu(key)  # Need to rewrite input_handlers.py
+                action = handle_main_menu(key_event)
+                # The following lines clear the current events. Need a more elegant solution.
+                key_event = tcod.event.KeyboardEvent(0, 0, 0)
                 key = None
+
+                # Input results
                 new_game = action.get('new_game')
                 load_saved_game = action.get('load_game')
                 exit_game = action.get('exit')

@@ -1,10 +1,10 @@
 
-import tcod as libtcod  # TODO Update TCOD Function (fix_deprecations)
+import tcod
 import textwrap
 
 
 class Message:
-    def __init__(self, text, color=libtcod.white):
+    def __init__(self, text, color=tcod.white):
         self.text = text
         self.color = color
 
