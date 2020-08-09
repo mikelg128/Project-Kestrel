@@ -1,4 +1,4 @@
-import tcod as libtcod
+import tcod as tcod
 
 
 def main():
@@ -6,36 +6,41 @@ def main():
     screen_height = 50
     window_title = 'UI Testing'
 
-    libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GRAYSCALE | libtcod.FONT_LAYOUT_TCOD)
-    libtcod.console_init_root(screen_width, screen_height, window_title, False)
+    tileset = tcod.tileset.load_tilesheet('../assets/arial10x10.png', 32, 8, tcod.tileset.CHARMAP_TCOD)
+    main_loop_count = 0
 
-    con = libtcod.console_new(60, 40)
+    # Create a new terminal:
+    with tcod.context.new_terminal(
+            screen_width,
+            screen_height,
+            tileset=tileset,
+            title=window_title,
+            vsync=True
+    ) as context:
+        # Create the root console:
+        root_console = tcod.Console(screen_width, screen_height, order='F')
+        panel_width, panel_height = 60, 40
+        panel = tcod.Console(panel_width, panel_height, order='F')
 
-    while not libtcod.console_is_window_closed():
+        while True:
+            panel.print(30, 20, 'Hello World', tcod.white, alignment=tcod.CENTER)
 
-        libtcod.console_set_default_foreground(con, libtcod.white)
-        libtcod.console_print_ex(con, 30, 20, libtcod.BKGND_NONE, libtcod.CENTER,
-                                 'Hello World')
-        # libtcod.console_put_char(con, 0, 0, '+', libtcod.BKGND_NONE)
-        # libtcod.console_put_char(con, 0, 40 - 1, '+', libtcod.BKGND_NONE)
-        # libtcod.console_put_char(con, 60 - 1, 0, '+', libtcod.BKGND_NONE)
-        # libtcod.console_put_char(con, 60 - 1, 40 - 1, '+', libtcod.BKGND_NONE)
-        for x in range(0, 60):
-            for y in range(0, 40):
-                if (x == 0 or x == 59) and (y == 0 or y == 39):
-                    libtcod.console_put_char(con, x, y, '+', libtcod.BKGND_NONE)
-                elif x == 0 or x == 59:
-                    libtcod.console_put_char(con, x, y, 179, libtcod.BKGND_NONE)
-                elif y == 0 or y == 39:
-                    libtcod.console_put_char(con, x, y, 196, libtcod.BKGND_NONE)
+            for x in range(0, panel_width):
+                for y in range(0, panel_height):
+                    if (x == 0 or x == 59) and (y == 0 or y == 39):
+                        panel.print(x, y, chr(9532), tcod.white)
+                    elif x == 0 or x == 59:
+                        panel.print(x, y, chr(9474), tcod.white)
+                    elif y == 0 or y == 39:
+                        panel.print(x, y, chr(9472), tcod.white)
 
-        libtcod.console_blit(con, 0, 0, 60, 40, 0, 10, 5, 1.0, 1.0)
-        libtcod.console_flush()
+            panel.blit(root_console, 10, 5, 0, 0, panel_width, panel_height, 1.0, 1.0)
+            context.present(root_console)
+            root_console.clear()
 
-        key = libtcod.console_check_for_keypress()
-
-        if key.vk == libtcod.KEY_ESCAPE:
-            return True
+            for event in tcod.event.wait():
+                if event.type == 'QUIT':
+                    raise SystemExit()
 
 
 if __name__ == "__main__":
