@@ -9,6 +9,7 @@ from render_functions import clear_all, render_all
 from death_functions import kill_player, kill_monster
 from game_messages import Message
 from menus import main_menu, message_box
+from debug_functions import print_tile_coord_at_mouse
 
 
 def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, context):
@@ -51,6 +52,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             elif event.type == "MOUSEMOTION":
                 mouse = event
                 current_mouse_tile = event.tile
+                print_tile_coord_at_mouse(event.tile)  # Debug function
 
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
@@ -337,9 +339,12 @@ def main() -> None:
         while True:  # <- I don't love
             main_loop_count += 1  # For debugging
             for event in tcod.event.wait():
+                context.convert_event(event)
                 if event.type == "KEYDOWN":
                     key = event.sym
                     key_event = event
+                if event.type == "MOUSEMOTION":
+                    print_tile_coord_at_mouse(event.tile)  # Debug function
                 # elif event.type == "MOUSEBUTTONDOWN":
                 #     mouse = event
                 mouse = event

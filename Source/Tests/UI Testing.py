@@ -1,4 +1,5 @@
-import tcod as tcod
+import tcod
+from debug_functions import print_tile_coord_at_mouse
 
 
 def main():
@@ -23,24 +24,31 @@ def main():
         panel = tcod.Console(panel_width, panel_height, order='F')
 
         while True:
-            panel.print(30, 20, 'Hello World', tcod.white, alignment=tcod.CENTER)
+            # panel.print(30, 20, 'Hello World', tcod.white, alignment=tcod.CENTER)
+            #
+            # for x in range(0, panel_width):
+            #     for y in range(0, panel_height):
+            #         if (x == 0 or x == 59) and (y == 0 or y == 39):
+            #             panel.print(x, y, chr(9532), tcod.white)
+            #         elif x == 0 or x == 59:
+            #             panel.print(x, y, chr(9474), tcod.white)
+            #         elif y == 0 or y == 39:
+            #             panel.print(x, y, chr(9472), tcod.white)
+            #
+            # panel.blit(root_console, 10, 5, 0, 0, panel_width, panel_height, 1.0, 1.0)
 
-            for x in range(0, panel_width):
-                for y in range(0, panel_height):
-                    if (x == 0 or x == 59) and (y == 0 or y == 39):
-                        panel.print(x, y, chr(9532), tcod.white)
-                    elif x == 0 or x == 59:
-                        panel.print(x, y, chr(9474), tcod.white)
-                    elif y == 0 or y == 39:
-                        panel.print(x, y, chr(9472), tcod.white)
+            root_console.draw_frame(10, 5, panel_width, panel_height, 'Hello World')
 
-            panel.blit(root_console, 10, 5, 0, 0, panel_width, panel_height, 1.0, 1.0)
+
             context.present(root_console)
             root_console.clear()
 
             for event in tcod.event.wait():
+                context.convert_event(event)
                 if event.type == 'QUIT':
                     raise SystemExit()
+                if event.type == 'MOUSEMOTION':
+                    print_tile_coord_at_mouse(event.tile)
 
 
 if __name__ == "__main__":
