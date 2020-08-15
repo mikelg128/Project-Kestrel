@@ -73,13 +73,16 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
         y += 1
 
     # Render health bar:
-    render_bar(panel, 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp, tcod.light_red,
+    render_bar(panel, 1, 2, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp, tcod.light_red,
                tcod.darker_red)
     # Print dungeon level:
     panel.print(1, 3, 'Dungeon level: {0}'.format(game_map.dungeon_level), tcod.white, alignment=tcod.LEFT)
 
     # Print names under mouse:
-    panel.print(1, 0, get_names_under_mouse(mouse_tile, entities, fov_map), tcod.light_gray, alignment=tcod.LEFT)
+    panel.print(1, 1, get_names_under_mouse(mouse_tile, entities, fov_map), tcod.light_gray, alignment=tcod.LEFT)
+
+    # Draw Panel Frame
+    panel.draw_frame(0, 0, screen_width, panel_height, clear=False)
 
     # Blit panel to root console:
     panel.blit(con, 0, panel_y, 0, 0, screen_width, panel_height)
