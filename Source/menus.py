@@ -2,33 +2,45 @@
 import tcod
 
 
-def menu(con, header, options, width, screen_width, screen_height):
+def menu(con, header, options, window_width, screen_width, screen_height, frame_flag=False, frame_title=None):
     if len(options) > 26:
         raise ValueError('Cannot have a menu with more than 26 options.')
 
+    # calculate text width, assuming a border exists
+    text_width = window_width - 2
+
     # calculate total height for the header (after auto-wrap) and one line per option
-    header_height = con.get_height_rect(0, 0, width, screen_height, header)
-    height = len(options) + header_height
+    header_height = con.get_height_rect(0, 0, text_width, screen_height - 2, header)
+    text_height = len(options) + header_height
+
+    # calculate window height based on the calculated text height, assuming a border exists
+    window_height = text_height + 2
 
     # create an off-screen console that represents the menu's window
-    window = tcod.Console(width, height, order="F")
+    window = tcod.Console(window_width, window_height, order="F")
+
+    # Draw window border
+    if frame_flag is True:
+        # Homecooked border drawing:
+        # draw_border(window, window_width, window_height)
+        window.draw_frame(0, 0, window_width, window_height, frame_title)
 
     # print the header, with auto-wrap
-    window.print_box(0, 0, width, height, header, tcod.white, alignment=tcod.LEFT)
+    window.print_box(1, 1, text_width, text_height, header, tcod.white, alignment=tcod.LEFT)
 
     # print all the options
     y = header_height
     letter_index = ord('a')
     for option_text in options:
         text = '(' + chr(letter_index) + ') ' + option_text
-        window.print(0, y, text, tcod.white, alignment=tcod.LEFT)
+        window.print(1, y, text, tcod.white, alignment=tcod.LEFT)
         y += 1
         letter_index += 1
 
     # blit the contents of 'window' to the root console
-    x = int(screen_width / 2 - width / 2)
-    y = int(screen_height / 2 - height / 2)
-    window.blit(con, x, y, 0, 0, width, height, 1.0, 0.7)
+    x = int(screen_width / 2 - window_width / 2)
+    y = int(screen_height / 2 - window_height / 2)
+    window.blit(con, x, y, 0, 0, window_width, window_height, 1.0, 0.7)
 
 
 def inventory_menu(con, header, player, inventory_width, screen_width, screen_height):
@@ -46,7 +58,7 @@ def inventory_menu(con, header, player, inventory_width, screen_width, screen_he
             else:
                 options.append(item.name)
 
-    menu(con, header, options, inventory_width, screen_width, screen_height)
+    menu(con, header, options, inventory_width, screen_width, screen_height, True, 'Inventory')
 
 
 def main_menu(con, background_image, screen_width, screen_height):
@@ -64,7 +76,7 @@ def level_up_menu(con, header, player, menu_width, screen_width, screen_height):
                'Strength (+1 attach, from {0}'.format(player.fighter.power),
                'Agility (+1 Defense, from {0}'.format(player.fighter.defense)]
 
-    menu(con, header, options, menu_width, screen_width, screen_height)
+    menu(con, header, options, menu_width, screen_width, screen_height, True, 'Level Up!')
 
 
 def character_screen(con, player, character_screen_width, character_screen_height, screen_width, screen_height):
@@ -93,3 +105,15 @@ def character_screen(con, player, character_screen_width, character_screen_heigh
 
 def message_box(con, header, width, screen_width, screen_height):
     menu(con, header, [], width, screen_width, screen_height)
+
+
+def draw_border(con, width, height):
+
+    for x in range(0, width):
+        for y in range(0, height):
+            if (x == 0 or x == width - 1) and (y == 0 or y == height - 1):
+                con.print(x, y, chr(9532), tcod.white)
+            elif x == 0 or x == width - 1:
+                con.print(x, y, chr(9474), tcod.white)
+            elif y == 0 or y == height - 1:
+                con.print(x, y, chr(9472), tcod.white)
