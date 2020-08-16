@@ -15,7 +15,7 @@ from equipment_slots import EquipmentSlots
 
 
 def get_constants():
-    window_title = 'Roguelike Tutorial Revised'
+    window_title = '[Project Kestrel]'
 
     screen_width = 80
     screen_height = 50

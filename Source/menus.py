@@ -63,7 +63,7 @@ def inventory_menu(con, header, player, inventory_width, screen_width, screen_he
 
 def main_menu(con, background_image, screen_width, screen_height):
     # tcod.image_blit_2x(background_image, 0, 0, 0)  # Do something about image drawing later.
-    con.print(int(screen_width / 2), int(screen_height / 2) - 6, '[Rogue Like]', tcod.light_yellow,
+    con.print(int(screen_width / 2), int(screen_height / 2) - 6, '[Project Kestrel]', tcod.light_yellow,
               alignment=tcod.CENTER)
     con.print(int(screen_width / 2), int(screen_height / 2) - 5, 'by Michael Greer & Samar Mathur',
               tcod.light_yellow, alignment=tcod.CENTER)
