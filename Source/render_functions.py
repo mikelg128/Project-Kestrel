@@ -35,8 +35,10 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
 
 def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height,
                bar_width, panel_height, panel_y, mouse_tile, colors, game_state):
-    # Draw all the tiles in the game map
-    if fov_recompute:
+    # Draw all the tiles in the game map;
+    #   This code block could be condensed into a standalone function for "rendering game map" that outputs to its
+    #   own console, which then flows to the root console.
+    if fov_recompute:  # This currently doesn't mean much, because it's always true iirc
         for y in range(game_map.height):
             for x in range(game_map.width):
                 visible = tcod.map_is_in_fov(fov_map, x, y)  # TODO: look into newer FOV functions
@@ -57,12 +59,14 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
 
     # Draw all entities in the list
+    #   More game map work, could be included in the game map specific render functions
     for entity in entities_in_render_order:
         draw_entity(con, entity, fov_map, game_map)
 
     # con.blit(0, 0, screen_width, screen_height, 0, 0, 0)
 
     # Set panel to black and clear it
+    #   Here is where the other UI stuff starts happening. The panel is where the health bar, message log, etc. sit
     panel.default_bg = tcod.black
     panel.clear()
 
@@ -87,6 +91,10 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
     # Blit panel to root console:
     panel.blit(con, 0, panel_y, 0, 0, screen_width, panel_height)
 
+    # The following logic is to call up pop up UI elements based on a change of game state.
+    #   Thought: call a single function (show UI or some such) and pass the game state. Shouldn't need to pass the
+    #   screen size and things like that everytime; the UI should initialize with those values, and the only things
+    #   passed should be the things that change from loop to loop (like the game state).
     if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         if game_state == GameStates.SHOW_INVENTORY:
             inventory_title = 'Press the key next to an item to use it, or Esc to cancel.\n'

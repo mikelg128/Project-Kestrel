@@ -1,62 +1,51 @@
 import tcod
 from debug_functions import print_tile_coord_at_mouse
 
-class UI_element:
-    def __init__(self, width, height, frame_flag=False, frame_title=''):
-        self.width = width
-        self.height = height
-        self.frame_title = frame_title
-        self.frame_flag = frame_flag
-        self.element = tcod.Console(self.width, self.height, order='F')
 
-        if frame_flag:
-            self.draw_frame()
+class UserInterface:
+    def __init__(self, screen_width, screen_height, con):
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.root = con
 
-    def create_element(self, width, height):
-        self.element = tcod.Console(width, height, order='F')
+        # UI Element definitions:
+        # Panel definition:
+        self.panel_width = screen_width
+        self.panel_height = 10
+        self.panel = tcod.Console(self.panel_width, self.panel_height, order='F')
+        # Panel location:
+        self.panel_dstx = 0
+        self.panel_dsty = self.screen_height - self.panel_height
 
-    def blit_element(self, root, dstx, dsty):
-        self.element.blit(root, dstx, dsty, 0, 0, self.width, self.height)
+        # Misc Pop Up Element:
+        self.popup_width = 40
+        self.popup_height = 20
+        self.popup = tcod.Console(self.popup_width, self.popup_height, order='F')
+        self.popup_dstx = int((self.screen_width - self.popup_width)/2)
+        self.popup_dsty = int(((self.screen_height - self.panel_height) - self.popup_height)/2)
 
-    def draw_frame(self):
-        self.element.draw_frame(0, 0, self.width, self.height, self.frame_title)
+    def render_popup(self):
+        self.popup.draw_frame(0, 0, self.popup_width, self.popup_height, "Pop-Up Window")
+        self.popup.print(int(self.popup_width/2), int(self.popup_height/2), "This is a pop up window", tcod.white,
+                         alignment=tcod.CENTER)
 
-    def menu(self, header, options, window_width, screen_width, screen_height):
-        if len(options) > 26:
-            raise ValueError('Cannot have a menu with more than 26 options.')
+        self.popup.blit(self.root, self.popup_dstx, self.popup_dsty, 0, 0, self.popup_width, self.popup_height)
 
-        if self.frame_flag:
-            border = 2
-        else:
-            border = 0
+    def render_panel(self):
+        self.panel.draw_frame(0, 0, self.panel_width, self.panel_height)
 
-        # calculate text width, subtracting the border if it exists
-        text_width = self.width - border
+        self.panel.print(int(self.panel_width/2), int(self.panel_height/2), "Hello World", tcod.white,
+                         alignment=tcod.CENTER)
 
-        # set max header height
-        max_header_height = 2
+        self.panel.blit(self.root, self.panel_dstx, self.panel_dsty, 0, 0, self.panel_width, self.panel_height, 1.0,
+                        1.0)
 
-        # calculate total height for the header (after auto-wrap) and one line per option
-        header_height = self.element.get_height_rect(0, 0, text_width, max_header_height, header)
-        text_height = len(options) + header_height
-
-        # calculate new window height based on the calculated text height, adding a border if it exists
-        self.height = text_height + border
-
-        # reset the element console with new height
-        self.create_element(self.width, self.height)
-
-        # print the header, with auto-wrap
-        self.element.print_box(border/2, border/2, text_width, text_height, header, tcod.white, alignment=tcod.LEFT)
-
-        # print all the options
-        y = header_height
-        letter_index = ord('a')
-        for option_text in options:
-            text = '(' + chr(letter_index) + ') ' + option_text
-            self.element.print(1, y, text, tcod.white, alignment=tcod.LEFT)
-            y += 1
-            letter_index += 1
+    def render_ui(self, game_state):
+        if game_state == 1:
+            self.render_panel()
+        elif game_state == 2:
+            self.render_panel()
+            self.render_popup()
 
 
 def main():
@@ -67,8 +56,7 @@ def main():
     tileset = tcod.tileset.load_tilesheet('../assets/arial10x10.png', 32, 8, tcod.tileset.CHARMAP_TCOD)
     main_loop_count = 0
 
-    element_1 = UI_element(20, 20, True, "test")
-    element_2 = UI_element(10, 10, True, "test 2")
+    game_state = 1
 
     # Create a new terminal:
     with tcod.context.new_terminal(
@@ -80,8 +68,10 @@ def main():
     ) as context:
         # Create the root console:
         root_console = tcod.Console(screen_width, screen_height, order='F')
+
+        # Create the UI
         panel_width, panel_height = 60, 40
-        panel = tcod.Console(panel_width, panel_height, order='F')
+        ui = UserInterface(screen_width, screen_height, root_console)
 
         while True:
             # panel.print(30, 20, 'Hello World', tcod.white, alignment=tcod.CENTER)
@@ -99,9 +89,7 @@ def main():
 
             # root_console.draw_frame(10, 5, panel_width, panel_height, 'Hello World')
 
-            element_1.blit_element(root_console, 10, 10)
-            element_2.blit_element(root_console, 20, 20)
-
+            ui.render_ui(game_state)
             context.present(root_console)
             root_console.clear()
 
@@ -111,6 +99,10 @@ def main():
                     raise SystemExit()
                 if event.type == 'MOUSEMOTION':
                     print_tile_coord_at_mouse(event.tile)
+                if event.type == 'MOUSEBUTTONDOWN':
+                    game_state = 2
+                if event.type == 'KEYDOWN':
+                    game_state = 1
 
 
 if __name__ == "__main__":
