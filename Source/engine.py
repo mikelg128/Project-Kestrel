@@ -9,7 +9,7 @@ from render_functions import clear_all, render_all
 from death_functions import kill_player, kill_monster
 from game_messages import Message
 from menus import main_menu, message_box
-from debug_functions import print_tile_coord_at_mouse
+from debug_functions import print_tile_coord_at_mouse, print_event
 
 
 def play_game(player, entities, game_map, message_log, game_state, con, panel, constants, context):
@@ -44,6 +44,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
 
         for event in tcod.event.get():
             context.convert_event(event)
+            print_event(event)
             if event.type == "KEYDOWN":
                 key = event.sym
                 key_event = event
