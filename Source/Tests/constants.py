@@ -18,12 +18,15 @@ panel_dsty = screen_height - panel_height
 
 popup_width = 40
 popup_height = 20
-popup_dstx = int((screen_width - popup_width)/2)
-popup_dsty = int(((screen_height - panel_height) - popup_height)/2)
+window_dstx = int((screen_width - popup_width)/2)
+window_dsty = int(((screen_height - panel_height) - popup_height)/2)
 
 message_panel_dstx = 22
 message_width = screen_width - 22
 message_height = panel_height - 2
+
+# Inventory:
+inventory_width = 50
 
 map_width = 80
 map_height = 43
