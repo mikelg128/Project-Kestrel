@@ -16,6 +16,11 @@ panel_width = screen_width
 panel_dstx = 0
 panel_dsty = screen_height - panel_height
 
+overlay_height = screen_height - panel_height
+overlay_width = screen_width
+overlay_dstx = 0
+overlay_dsty = 0
+
 popup_width = 40
 popup_height = 20
 window_dstx = int((screen_width - popup_width)/2)

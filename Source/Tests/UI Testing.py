@@ -33,12 +33,13 @@ def main():
         # Create UI element consoles:
         panel_con = tcod.Console(const.panel_width, const.panel_height, order='F')
         window_con = tcod.Console(const.popup_width, const.popup_height, order='F')
+        overlay_con = tcod.Console(const.overlay_width, const.overlay_height, order='F')
 
         # Create UI console, which contains all UI elements.
         # ui_con = tcod.Console(const.screen_width, const.screen_height, order='F')
 
         while True:
-            render_ui(root_console, panel_con, window_con, game_state, message_log, player, 1, 'Something')
+            render_ui(root_console, panel_con, overlay_con, game_state, message_log, player, 1, 'Something')
 
             context.present(root_console)
             root_console.clear()
