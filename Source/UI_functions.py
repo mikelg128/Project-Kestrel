@@ -8,19 +8,16 @@ def render_ui(root, panel, overlay, game_state, message_log, player, dungeon_lev
     overlay.clear()
 
     render_panel(root, panel, message_log, player, dungeon_level, name_under_mouse)
-    window_height = 0
-    window_width = 0
-    window_dsty = 0
     if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         if game_state == GameStates.SHOW_INVENTORY:
             inventory_title = 'Press the key next to an item to use it, or Esc to cancel.\n'
         else:
             inventory_title = 'Press the key next to an item to drop it, or Esc to cancel.\n'
         render_inventory(overlay, inventory_title, player)
-    # elif game_state == GameStates.LEVEL_UP:
-    #     level_up_menu(con, 'Level up! Choose a stat to raise:', player, 40, screen_width, screen_height)
-    #
-    # elif game_state == GameStates.CHARACTER_SCREEN:
+    elif game_state == GameStates.LEVEL_UP:
+        render_lvlup(overlay, 'Level up! Choose a stat to raise:', player)
+    elif game_state == GameStates.CHARACTER_SCREEN:
+        render_char_screen(overlay, player)
     #     character_screen(con, player, 30, 10, screen_width, screen_height)
 
     panel.blit(root, const.panel_dstx, const.panel_dsty, 0, 0, const.panel_width, const.panel_height, 1.0, 1.0)
@@ -68,7 +65,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                 alignment=tcod.CENTER)
 
 
-def render_inventory(overlay, header, player):
+def render_inventory(con, header, player):
     # show a menu with each item of the inventory as an option
     # window.draw_frame(0, 0, const.popup_width, const.popup_height, "Inventory")
     if len(player.inventory.items) == 0:
@@ -84,10 +81,35 @@ def render_inventory(overlay, header, player):
             else:
                 options.append(item.name)
 
-    window_dstx, window_dsty, window_height = option_menu(overlay, header, options, const.inventory_width,
+    window_dstx, window_dsty, window_height = option_menu(con, header, options, const.inventory_width,
                                                           const.overlay_width, const.overlay_height)
     window_width = const.inventory_width
-    overlay.draw_frame(window_dstx, window_dsty, window_width, window_height, "Inventory", clear=False)
+    con.draw_frame(window_dstx, window_dsty, window_width, window_height, "Inventory", clear=False)
+
+
+def render_lvlup(con, header, player):
+    options = ['Constitution (+20 HP, from {0})'.format(player.fighter.max_hp),
+               'Strength (+1 attach, from {0}'.format(player.fighter.power),
+               'Agility (+1 Defense, from {0}'.format(player.fighter.defense)]
+
+    window_dstx, window_dsty, window_height = option_menu(con, header, options, const.lvlup_width, const.overlay_width,
+                                                          const.overlay_height)
+    con.draw_frame(window_dstx, window_dsty, const.lvlup_width, window_height, "Level Up!", clear=False)
+
+
+def render_char_screen(con, player):
+    info_list = ['Character Screen',
+                  'Level: {0}'.format(player.level.current_level),
+                  'Experience: {0}'.format(player.level.current_xp),
+                  'Experience to Level: {0}'.format(player.level.experience_to_next_level),
+                  'Maximum HP: {0}'.format(player.fighter.max_hp),
+                  'Attack: {0}'.format(player.fighter.power),
+                  'Defense: {0}'.format(player.fighter.defense)
+                  ]
+
+    window_dstx, window_dsty, window_height = info_menu(con, info_list, const.char_screen_width, const.overlay_width,
+                                                        const.overlay_height)
+    con.draw_frame(window_dstx, window_dsty, const.char_screen_width, window_height, "Character Screen", clear=False)
 
 
 # Temp function; may keep menus in the separate menus file:
@@ -130,5 +152,25 @@ def option_menu(con, header, options, window_width, con_width, con_height):
     # window.blit(con, x, y, 0, 0, window_width, window_height, 1.0, 0.7)
     return window_dstx, window_dsty, window_height
 
-# def info_menu():
 
+def info_menu(con, info_list, window_width, con_width, con_height):
+
+    # Calculate text height based on number of options, assuming a border exists
+    text_height = len(info_list)
+
+    # calculate window height and location (centered on the console) based on the calculated text height,
+    # assuming a border exists
+    window_height = text_height + 2
+    window_dstx = int((con_width - window_width) / 2)
+    window_dsty = int((con_height - window_height) / 2)
+
+    # Calculate text destination based on the window destination
+    text_dstx = window_dstx + 1
+    text_dsty = window_dsty + 1
+
+    y = text_dsty
+    for info_text in info_list:
+        con.print_box(text_dstx, y, window_width, window_height, info_text, tcod.white, alignment=tcod.LEFT)
+        y += 1
+
+    return window_dstx, window_dsty, window_height

@@ -33,6 +33,12 @@ message_height = panel_height - 2
 # Inventory:
 inventory_width = 50
 
+# Lvl up menu:
+lvlup_width = 40
+
+# Character Screen:
+char_screen_width = 30
+
 map_width = 80
 map_height = 43
 

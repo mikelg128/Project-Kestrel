@@ -64,6 +64,14 @@ def main():
                         message_log.add_message(Message('You check your bag.'))
                         game_state = GameStates.SHOW_INVENTORY
                         print(game_state)
+                    elif event.sym == tcod.event.K_l:
+                        message_log.add_message(Message('You leveled up!'))
+                        game_state = GameStates.LEVEL_UP
+                        print(game_state)
+                    elif event.sym == tcod.event.K_c:
+                        message_log.add_message(Message('You think about your stats..'))
+                        game_state = GameStates.CHARACTER_SCREEN
+                        print(game_state)
 
 
 
