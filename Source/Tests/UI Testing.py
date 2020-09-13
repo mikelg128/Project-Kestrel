@@ -1,8 +1,6 @@
 import tcod
-from debug_functions import print_tile_coord_at_mouse, print_event
-from Tests.constants import Constants
-import Tests.constants as const
-import time
+from debug_functions import print_event
+import constants as const
 from game_messages import Message, MessageLog
 from UI_functions import render_ui
 from loader_functions.initialize_new_game import get_constants, get_game_variables
@@ -55,23 +53,34 @@ def main():
                     message_log.add_message(Message('Click!'))
                     print_event(event)
                 elif event.type == 'KEYDOWN':
-                    if event.sym == tcod.event.K_ESCAPE and game_state == GameStates.PLAYERS_TURN:
+                    if event.sym == tcod.event.K_ESCAPE and game_state == GameStates.MAIN_MENU:
                         raise SystemExit()
-                    elif event.sym == tcod.event.K_ESCAPE:
+                    elif event.sym == tcod.event.K_ESCAPE and not game_state == GameStates.PLAYERS_TURN:
                         game_state = GameStates.PLAYERS_TURN
+                        print(game_state)
+                    elif event.sym == tcod.event.K_ESCAPE:
+                        game_state = GameStates.MAIN_MENU
+                        print(game_state)
                     message_log.add_message(Message('Clack!'))
-                    if event.sym == tcod.event.K_i:
-                        message_log.add_message(Message('You check your bag.'))
-                        game_state = GameStates.SHOW_INVENTORY
-                        print(game_state)
-                    elif event.sym == tcod.event.K_l:
-                        message_log.add_message(Message('You leveled up!'))
-                        game_state = GameStates.LEVEL_UP
-                        print(game_state)
-                    elif event.sym == tcod.event.K_c:
-                        message_log.add_message(Message('You think about your stats..'))
-                        game_state = GameStates.CHARACTER_SCREEN
-                        print(game_state)
+                    if game_state == GameStates.PLAYERS_TURN:
+                        if event.sym == tcod.event.K_i:
+                            message_log.add_message(Message('You check your bag.'))
+                            game_state = GameStates.SHOW_INVENTORY
+                            print(game_state)
+                        elif event.sym == tcod.event.K_l:
+                            message_log.add_message(Message('You leveled up!'))
+                            game_state = GameStates.LEVEL_UP
+                            print(game_state)
+                        elif event.sym == tcod.event.K_c:
+                            message_log.add_message(Message('You think about your stats..'))
+                            game_state = GameStates.CHARACTER_SCREEN
+                            print(game_state)
+                    if game_state == GameStates.MAIN_MENU:
+                        if event.sym == tcod.event.K_a:
+                            message_log.add_message(Message('Hello Again'))
+                            game_state = GameStates.PLAYERS_TURN
+                            print(game_state)
+
 
 
 
