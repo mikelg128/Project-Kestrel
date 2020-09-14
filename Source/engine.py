@@ -8,7 +8,6 @@ from loader_functions.data_loaders import load_game, save_game
 from render_functions import render_all
 from death_functions import kill_player, kill_monster
 from game_messages import Message
-#from menus import main_menu, message_box
 from menus import message_box
 from debug_functions import print_tile_coord_at_mouse, print_event
 import constants as const
@@ -23,7 +22,6 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, o
     key_event = tcod.event.KeyboardEvent(0, 0, 0)
     mouse = tcod.event.MouseButtonEvent()
     current_mouse_tile = 0, 0
-    # game_state = GameStates.PLAYERS_TURN  # This is causing the corpse bug
     previous_game_state = game_state
 
     targeting_item = None
@@ -33,10 +31,9 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, o
     loop_count = 0
 
     # Render and present the initial game state:
-    recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
-                  constants['fov_algorithm'])
+    recompute_fov(fov_map, player.x, player.y, const.fov_radius, const.fov_light_walls, const.fov_algorithm)
     render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log, current_mouse_tile,
-               constants['colors'], game_state)
+               const.colors, game_state)
     context.present(con)
     con.clear()
 
@@ -58,11 +55,10 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, o
                 print_tile_coord_at_mouse(event.tile)  # Debug function
 
         if fov_recompute:
-            recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'],
-                          constants['fov_algorithm'])
+            recompute_fov(fov_map, player.x, player.y, const.fov_radius, const.fov_light_walls, const.fov_algorithm)
 
-        render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log, current_mouse_tile,
-                   constants['colors'], game_state)
+        render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log,
+                   current_mouse_tile, const.colors, game_state)
         # fov_recompute = False
 
         # Console update:
@@ -327,16 +323,16 @@ def main() -> None:
 
     # Create a new terminal:
     with tcod.context.new_terminal(
-            constants['screen_width'],
-            constants['screen_height'],
+            const.screen_width,
+            const.screen_height,
             tileset=tileset,
             title='RogueLike',
             vsync=True
     ) as context:
         # Create the root console:
-        root_console = tcod.Console(constants['screen_width'], constants['screen_height'], order='F')
+        root_console = tcod.Console(const.screen_width, const.screen_height, order='F')
         # Create console for panel:
-        panel = tcod.Console(constants['screen_width'], constants['panel_height'], order='F')
+        panel = tcod.Console(const.panel_width, const.panel_height, order='F')
         overlay_con = tcod.Console(const.overlay_width, const.overlay_height, order='F')
 
         while True:  # <- I don't love
@@ -359,8 +355,8 @@ def main() -> None:
                 render_main_menu(root_console)
 
                 if show_load_error_message:
-                    message_box(root_console, 'No save game to load', 65, constants['screen_width'],
-                                constants['screen_height'])
+                    message_box(root_console, 'No save game to load', 65, const.screen_width,
+                                const.screen_height)
 
                 # Update the terminal with the contents of the root console:
                 context.present(root_console)

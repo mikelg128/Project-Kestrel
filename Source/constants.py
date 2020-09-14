@@ -61,6 +61,8 @@ colors = {
 }
 
 
+# Not used right now, but might be useful to define all the constants in a class at some point, to make them more
+# accessible. Right now, none of these constants are editable.
 class Constants:
     screen_height = 50
     screen_width = 80

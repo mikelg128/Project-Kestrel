@@ -3,6 +3,9 @@ import tcod
 
 
 def option_menu(con, header, options, window_width, con_width, con_height):
+    # Creates an "option menu" window at the center of the given window, and returns the size and coordinates.
+
+    # Check to see if number of options exceeds limit:
     if len(options) > 26:
         raise ValueError('Cannot have a menu with more than 26 options.')
 
@@ -35,14 +38,11 @@ def option_menu(con, header, options, window_width, con_width, con_height):
         y += 1
         letter_index += 1
 
-    # blit the contents of 'window' to the root console
-    # x = int(screen_width / 2 - window_width / 2)
-    # y = int(screen_height / 2 - window_height / 2)
-    # window.blit(con, x, y, 0, 0, window_width, window_height, 1.0, 0.7)
     return window_dstx, window_dsty, window_height
 
 
 def info_menu(con, info_list, window_width, con_width, con_height):
+    # Creates an "info menu" window at the center of the given console and returns the window size and coordinates.
 
     # Calculate text height based on number of options, assuming a border exists
     text_height = len(info_list)
@@ -70,7 +70,7 @@ def message_box(con, header, width, screen_width, screen_height):
 
 
 def draw_border(con, width, height):
-
+    # Current not used; draw_frame accomplishes essentially the same thing.
     for x in range(0, width):
         for y in range(0, height):
             if (x == 0 or x == width - 1) and (y == 0 or y == height - 1):

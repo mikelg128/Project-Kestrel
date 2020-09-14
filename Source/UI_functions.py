@@ -5,10 +5,13 @@ from menus import option_menu, info_menu
 
 
 def render_ui(root, panel, overlay, game_state, message_log, player, dungeon_level, name_under_mouse):
+    # Clear the UI consoles
     panel.clear()
     overlay.clear()
 
+    # Game state logic
     if not game_state == GameStates.MAIN_MENU:
+        # Currently, the MAIN_MENU game state is never called.
         render_panel(root, panel, message_log, player, dungeon_level, name_under_mouse)
         if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
             if game_state == GameStates.SHOW_INVENTORY:
@@ -29,13 +32,7 @@ def render_ui(root, panel, overlay, game_state, message_log, player, dungeon_lev
 
 
 def render_panel(root, panel, message_log, player, dungeon_level, name_under_mouse):
-    # panel.default_bg = tcod.black
-    # panel.clear()
-
     panel.draw_frame(0, 0, const.panel_width, const.panel_height)
-
-    # panel.print(int(const.panel_width / 2), int(const.panel_height / 2), "Hello World", tcod.white,
-    #             alignment=tcod.CENTER)
 
     # Print the game messages, one line at a time
     y = 1
@@ -53,8 +50,6 @@ def render_panel(root, panel, message_log, player, dungeon_level, name_under_mou
     # Print names under mouse:
     panel.print(1, 1, name_under_mouse, tcod.light_gray, alignment=tcod.LEFT)
 
-    # panel.blit(root, const.panel_dstx, const.panel_dsty, 0, 0, const.panel_width, const.panel_height, 1.0, 1.0)
-
 
 def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_color):
     bar_width = int(float(value) / maximum * total_width)
@@ -70,12 +65,11 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
 
 def render_inventory(con, header, player):
     # show a menu with each item of the inventory as an option
-    # window.draw_frame(0, 0, const.popup_width, const.popup_height, "Inventory")
     if len(player.inventory.items) == 0:
         options = ['Inventory is empty.']
     else:
         options = []
-
+        # Checks for equipped items
         for item in player.inventory.items:
             if player.equipment.main_hand == item:
                 options.append('{0} (on main hand)'.format(item.name))
@@ -86,8 +80,7 @@ def render_inventory(con, header, player):
 
     window_dstx, window_dsty, window_height = option_menu(con, header, options, const.inventory_width,
                                                           const.overlay_width, const.overlay_height)
-    window_width = const.inventory_width
-    con.draw_frame(window_dstx, window_dsty, window_width, window_height, "Inventory", clear=False)
+    con.draw_frame(window_dstx, window_dsty, const.inventory_width, window_height, "Inventory", clear=False)
 
 
 def render_lvlup(con, header, player):
@@ -116,73 +109,9 @@ def render_char_screen(con, player):
 
 
 def render_main_menu(con):
-    con.print(int(const.screen_width / 2), int(const.screen_height / 2) - 6, '[Rogue Like]', tcod.light_yellow,
+    con.print(int(const.screen_width / 2), int(const.screen_height / 2) - 6, '[Project Kestrel]', tcod.light_yellow,
               alignment=tcod.CENTER)
     con.print(int(const.screen_width / 2), int(const.screen_height / 2) - 5, 'by Michael Greer & Samar Mathur',
               tcod.light_yellow, alignment=tcod.CENTER)
 
     option_menu(con, '', ['Play a new game', 'Continue last game', 'Quit'], 24, const.screen_width, const.screen_height)
-
-
-# Temp function; may keep menus in the separate menus file:
-# def option_menu(con, header, options, window_width, con_width, con_height):
-#     if len(options) > 26:
-#         raise ValueError('Cannot have a menu with more than 26 options.')
-#
-#     # calculate text width, assuming a border exists
-#     text_width = window_width - 2
-#
-#     # calculate total height for the header (after auto-wrap) and one line per option
-#     header_height = con.get_height_rect(0, 0, text_width, con_height - 2, header)  # Why reference screen_height?
-#     text_height = len(options) + header_height
-#
-#     # calculate window height and location (centered on the console) based on the calculated text height,
-#     # assuming a border exists
-#     window_height = text_height + 2
-#     window_dstx = int((con_width - window_width) / 2)
-#     window_dsty = int((con_height - window_height) / 2)
-#
-#     # Calculate text start coordinates:
-#     text_dstx = window_dstx + 1
-#     text_dsty = window_dsty + 1
-#
-#     # print the header, with auto-wrap
-#     con.print_box(text_dstx, text_dsty, text_width, text_height, header, tcod.white, alignment=tcod.LEFT)
-#
-#     # print all the options
-#     y = text_dsty + header_height
-#     letter_index = ord('a')
-#     for option_text in options:
-#         text = '(' + chr(letter_index) + ') ' + option_text
-#         con.print(text_dstx, y, text, tcod.white, alignment=tcod.LEFT)
-#         y += 1
-#         letter_index += 1
-#
-#     # blit the contents of 'window' to the root console
-#     # x = int(screen_width / 2 - window_width / 2)
-#     # y = int(screen_height / 2 - window_height / 2)
-#     # window.blit(con, x, y, 0, 0, window_width, window_height, 1.0, 0.7)
-#     return window_dstx, window_dsty, window_height
-#
-#
-# def info_menu(con, info_list, window_width, con_width, con_height):
-#
-#     # Calculate text height based on number of options, assuming a border exists
-#     text_height = len(info_list)
-#
-#     # calculate window height and location (centered on the console) based on the calculated text height,
-#     # assuming a border exists
-#     window_height = text_height + 2
-#     window_dstx = int((con_width - window_width) / 2)
-#     window_dsty = int((con_height - window_height) / 2)
-#
-#     # Calculate text destination based on the window destination
-#     text_dstx = window_dstx + 1
-#     text_dsty = window_dsty + 1
-#
-#     y = text_dsty
-#     for info_text in info_list:
-#         con.print_box(text_dstx, y, window_width, window_height, info_text, tcod.white, alignment=tcod.LEFT)
-#         y += 1
-#
-#     return window_dstx, window_dsty, window_height

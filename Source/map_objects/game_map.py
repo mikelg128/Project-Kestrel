@@ -14,6 +14,7 @@ from components.item import Item
 from render_functions import RenderOrder
 from components.stairs import Stairs
 from random_utils import random_choice_from_dict, from_dungeon_level
+import constants as const
 
 
 class GameMap:
@@ -200,8 +201,8 @@ class GameMap:
         entities = [player]
 
         self.tiles = self.initialize_tiles()
-        self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'],
-                      constants['map_width'], constants['map_height'], player, entities)
+        self.make_map(const.max_rooms, const.room_min_size, const.room_max_size, const.map_width, const.map_height,
+                      player, entities)
 
         player.fighter.heal(player.fighter.max_hp // 2)
 
