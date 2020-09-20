@@ -326,7 +326,7 @@ def main() -> None:
             const.screen_width,
             const.screen_height,
             tileset=tileset,
-            title='RogueLike',
+            title=constants['window_title'],
             vsync=True
     ) as context:
         # Create the root console:
