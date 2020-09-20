@@ -12,6 +12,7 @@ from map_objects.game_map import GameMap
 from render_functions import RenderOrder
 from components.level import Level
 from equipment_slots import EquipmentSlots
+import constants as const
 
 
 def get_constants():
@@ -90,11 +91,11 @@ def get_game_variables(constants):
     player.inventory.add_item(dagger)
     player.equipment.toggle_equip(dagger)
 
-    game_map = GameMap(constants['map_width'], constants['map_height'])
-    game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'],
-                      constants['map_width'], constants['map_height'], player, entities)
+    game_map = GameMap(const.map_width, const.map_height)
+    game_map.make_map(const.max_rooms, const.room_min_size, const.room_max_size, const.map_width, const.map_height,
+                      player, entities)
 
-    message_log = MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
+    message_log = MessageLog(const.message_panel_dstx, const.message_width, const.message_height)
 
     game_state = GameStates.PLAYERS_TURN
 
