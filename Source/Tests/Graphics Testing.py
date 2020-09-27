@@ -7,20 +7,35 @@ import constants as const
 # from game_states import GameStates
 
 
-def render_graphics(con):
+def render_graphics(con, tile):
 
-    y = 0
     for j in range(con.height):
-        x = 0
         for i in range(con.width):
-            con.tiles[x, y] = ord(' '), (*tcod.white, 255), (*tcod.blue, 255)
-            if x is not con.width - 1:
-                x += 1
-                con.tiles[x, y] = ord(' '), (*tcod.white, 255), (*tcod.blue, 255)
-            if x is con.width - 1:
-                break
-            x += 1
-        y += 1
+            con.tiles_rgb[i, j] = ord(' '), tcod.white, tcod.darker_gray
+
+    highlight_tile(con, tile)
+    # tile_bg = con.tiles_rgb[x, y][2]
+    #
+    # tile_bg[1] = tile_bg[1] + 50
+    # print(tile_bg)
+    # con.tiles_rgb[x, y] = ord(' '), tcod.white, tile_bg
+
+
+def highlight_tile(con, tile):
+    x, y = tile[0], tile[1]
+    tile_ch, tile_fg, tile_bg = con.tiles_rgb[tile]
+    i = 0
+    for c in tile_bg:
+        if c < 205:
+            tile_bg[i] = c + 50
+
+        else:
+            tile_bg[i] = 255
+        i += 1
+
+    print(tile_bg)
+    con.tiles_rgb[tile] = tile_ch, tile_fg, tile_bg
+
 
 def main():
 
@@ -28,6 +43,8 @@ def main():
 
     tileset = tcod.tileset.load_tilesheet('../assets/arial10x10.png', 32, 8, tcod.tileset.CHARMAP_TCOD)
     main_loop_count = 0
+
+    current_mouse_tile = 0, 0
 
     # Create a new terminal:
     with tcod.context.new_terminal(
@@ -42,7 +59,7 @@ def main():
 
         while True:
 
-            render_graphics(root_console)
+            render_graphics(root_console, current_mouse_tile)
 
             context.present(root_console)
             root_console.clear()
@@ -52,8 +69,10 @@ def main():
                 # print_event(event)
                 if event.type == 'QUIT':
                     raise SystemExit()
-                # elif event.type == 'MOUSEMOTION':
+                elif event.type == 'MOUSEMOTION':
                     # print_tile_coord_at_mouse(event.tile)
+                    mouse = event
+                    current_mouse_tile = event.tile
                 elif event.type == 'MOUSEBUTTONDOWN':
 
                     print_event(event)

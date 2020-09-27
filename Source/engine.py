@@ -33,7 +33,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, o
     # Render and present the initial game state:
     recompute_fov(fov_map, player.x, player.y, const.fov_radius, const.fov_light_walls, const.fov_algorithm)
     render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log, current_mouse_tile,
-               const.colors, game_state)
+               game_state)
     context.present(con)
     con.clear()
 
@@ -44,6 +44,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, o
         for event in tcod.event.get():
             context.convert_event(event)
             print_event(event)
+            # if event.type == 'QUIT':
+            #     exit = True
             if event.type == "KEYDOWN":
                 key = event.sym
                 key_event = event
@@ -58,7 +60,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, o
             recompute_fov(fov_map, player.x, player.y, const.fov_radius, const.fov_light_walls, const.fov_algorithm)
 
         render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log,
-                   current_mouse_tile, const.colors, game_state)
+                   current_mouse_tile, game_state)
         # fov_recompute = False
 
         # Console update:

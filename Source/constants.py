@@ -54,10 +54,17 @@ max_monsters_per_room = 3
 max_items_per_room = 2
 
 colors = {
-    'dark_wall': tcod.Color(0, 0, 100),
-    'dark_ground': tcod.Color(50, 50, 150),
+    # 'dark_wall': tcod.Color(0, 0, 100),
+    # 'dark_ground': tcod.Color(50, 50, 150),
+    # 'light_wall': tcod.Color(130, 110, 50),
+    # 'light_ground': tcod.Color(200, 180, 50)
+    'dark_wall': tcod.Color(50, 50, 50),
+    'dark_ground': tcod.Color(75, 75, 75),
     'light_wall': tcod.Color(130, 110, 50),
-    'light_ground': tcod.Color(200, 180, 50)
+    'light_ground': tcod.Color(200, 180, 50),
+    # 'orc': tcod.desaturated_green,
+    'orc': tcod.Color(20, 127, 20),
+    'troll': tcod.darker_green
 }
 
 

@@ -1,6 +1,7 @@
 import tcod
 from enum import Enum, auto
 from UI_functions import render_ui
+import constants as const
 
 
 class RenderOrder(Enum):
@@ -20,7 +21,23 @@ def get_names_under_mouse(mouse_tile, entities, fov_map):
     return names.capitalize()
 
 
-def render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log, mouse_tile, colors,
+def highlight_tile(con, tile):
+    x, y = tile[0], tile[1]
+    tile_ch, tile_fg, tile_bg = con.tiles_rgb[tile]
+    i = 0
+    for c in tile_bg:
+        if c < 205:
+            tile_bg[i] = c + 50
+
+        else:
+            tile_bg[i] = 255
+        i += 1
+
+    # print(tile_bg)
+    con.tiles_rgb[tile] = tile_ch, tile_fg, tile_bg
+
+
+def render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_recompute, message_log, mouse_tile,
                game_state):
     # Draw all the tiles in the game map;
     #   This code block could be condensed into a standalone function for "rendering game map" that outputs to its
@@ -33,15 +50,16 @@ def render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_rec
 
                 if visible:
                     if wall:
-                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('light_wall')
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, const.colors.get('light_wall')
                     else:
-                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('light_ground')
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, const.colors.get('light_ground')
                     game_map.tiles[x][y].explored = True
                 elif game_map.tiles[x][y].explored:
                     if wall:
-                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('dark_wall')
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, const.colors.get('dark_wall')
                     else:
-                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('dark_ground')
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, const.colors.get('dark_ground')
+    highlight_tile(con, mouse_tile)
 
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
 
