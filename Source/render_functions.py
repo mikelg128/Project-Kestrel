@@ -31,17 +31,17 @@ def render_all(con, panel, overlay, entities, player, game_map, fov_map, fov_rec
                 visible = tcod.map_is_in_fov(fov_map, x, y)  # TODO: look into newer FOV functions
                 wall = game_map.tiles[x][y].block_sight
 
-                if visible:  # TODO: Use *.tiles_RGB() or similar to render game map
+                if visible:
                     if wall:
-                        tcod.console_set_char_background(con, x, y, colors.get('light_wall'), tcod.BKGND_SET)
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('light_wall')
                     else:
-                        tcod.console_set_char_background(con, x, y, colors.get('light_ground'), tcod.BKGND_SET)
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('light_ground')
                     game_map.tiles[x][y].explored = True
                 elif game_map.tiles[x][y].explored:
                     if wall:
-                        tcod.console_set_char_background(con, x, y, colors.get('dark_wall'), tcod.BKGND_SET)
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('dark_wall')
                     else:
-                        tcod.console_set_char_background(con, x, y, colors.get('dark_ground'), tcod.BKGND_SET)
+                        con.tiles_rgb[x, y] = ord(' '), tcod.white, colors.get('dark_ground')
 
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
 
